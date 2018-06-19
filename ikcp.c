@@ -234,9 +234,9 @@ ikcpcb* ikcp_create(IUINT32 conv, void *user)
 {
 	ikcpcb *kcp = (ikcpcb*)ikcp_malloc(sizeof(struct IKCPCB));
 	if (kcp == NULL) return NULL;
-	kcp->conv = conv;
-	kcp->user = user;
-	kcp->snd_una = 0;
+	kcp->conv = conv; // 设置会话编号
+	kcp->user = user; // 用户回调函数
+	kcp->snd_una = 0; // 此编号前所有包已收到
 	kcp->snd_nxt = 0;
 	kcp->rcv_nxt = 0;
 	kcp->ts_recent = 0;
@@ -367,21 +367,21 @@ int ikcp_recv(ikcpcb *kcp, char *buffer, int len)
 
 	if (len < 0) len = -len;
 
-	peeksize = ikcp_peeksize(kcp);
+	peeksize = ikcp_peeksize(kcp); // rcv_queue 中一个的消息 的 总长度
 
 	if (peeksize < 0) 
 		return -2;
 
-	if (peeksize > len) 
+	if (peeksize > len)
 		return -3;
 
 	if (kcp->nrcv_que >= kcp->rcv_wnd)
 		recover = 1;
 
-	// merge fragment
+	// merge fragment // 将一个消息的分片合并
 	for (len = 0, p = kcp->rcv_queue.next; p != &kcp->rcv_queue; ) {
 		int fragment;
-		seg = iqueue_entry(p, IKCPSEG, node);
+		seg = iqueue_entry(p, IKCPSEG, node); // 找到p(IQUEUEHEAD)所在的seg(IKCPSEG)地址的开始处
 		p = p->next;
 
 		if (buffer) {

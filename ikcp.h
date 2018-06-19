@@ -255,20 +255,24 @@ typedef struct IQUEUEHEAD iqueue_head;
 //=====================================================================
 struct IKCPSEG
 {
-	struct IQUEUEHEAD node;
-	IUINT32 conv;
-	IUINT32 cmd;
-	IUINT32 frg;
-	IUINT32 wnd;
-	IUINT32 ts;
-	IUINT32 sn;
-	IUINT32 una;
+	struct IQUEUEHEAD node; // 节点用来串接多个 KCP segment，也就是前向后向指针；
+	IUINT32 conv; //  是会话编号，通信双方必须一致才能使用 KCP 协议交换数据；
+	IUINT32 cmd;// 表明当前报文的类型，KCP 共有四种类型：
+                // IKCP_CMD_PUSH : 传输的数据包
+                // IKCP_CMD_ACK : ACK包，类似于 TCP中的 ACK，通知对方收到了哪些包
+                // IKCP_CMD_WASK : 用来探测远端窗口大小
+                // IKCP_CMD_WINS : 告诉对方自己窗口大小
+	IUINT32 frg;//分片的编号，当输出数据大于 MSS 时，需要将数据进行分片，frg 记录了分片时的倒序序号；
+	IUINT32 wnd;//填写己方的可用窗口大小
+	IUINT32 ts; // 记录了发送时的时间戳，用来估计 RTT；
+	IUINT32 sn;//为 data 报文的编号或者 ack 报文的确认编号；
+	IUINT32 una;//为当前还未确认的数据包的编号；
 	IUINT32 len;
-	IUINT32 resendts;
-	IUINT32 rto;
-	IUINT32 fastack;
-	IUINT32 xmit;
-	char data[1];
+	IUINT32 resendts;// 为下一次重发该报文的时间
+	IUINT32 rto; // 为重传超时时间；
+	IUINT32 fastack;//记录了该报文在收到 ACK 时被跳过了几次，用于快重传；
+	IUINT32 xmit; //记录了该报文被传输了几次；
+	char data[1];// 为实际传输的数据 payload；
 };
 
 

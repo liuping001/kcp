@@ -283,9 +283,9 @@ struct IKCPCB
 {
 	IUINT32 conv, mtu, mss, state;
 	IUINT32 snd_una, snd_nxt, rcv_nxt;
-	IUINT32 ts_recent, ts_lastack, ssthresh;
-	IINT32 rx_rttval, rx_srtt, rx_rto, rx_minrto;
-	IUINT32 snd_wnd, rcv_wnd, rmt_wnd, cwnd, probe;
+	IUINT32 ts_recent, ts_lastack, ssthresh; // ssthresh 慢启动阈值;
+    IINT32 rx_rttval, rx_srtt, rx_rto, rx_minrto;
+	IUINT32 snd_wnd, rcv_wnd, rmt_wnd, cwnd, probe; // 1、snd_wnd、rcv_wnd 的值不会改变 2、rmt_wnd 由ikcp_input更新 3、拥塞窗口
 	IUINT32 current, interval, ts_flush, xmit;
 	IUINT32 nrcv_buf, nsnd_buf;
 	IUINT32 nrcv_que, nsnd_que;

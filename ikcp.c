@@ -378,7 +378,7 @@ int ikcp_recv(ikcpcb *kcp, char *buffer, int len)
 	if (kcp->nrcv_que >= kcp->rcv_wnd)
 		recover = 1;
 
-	// merge fragment // 将一个消息的分片合并
+	// merge fragment // 将一个消息的分片合并 并直接拷贝到buffer中传递给上层
 	for (len = 0, p = kcp->rcv_queue.next; p != &kcp->rcv_queue; ) {
 		int fragment;
 		seg = iqueue_entry(p, IKCPSEG, node); // 找到p(IQUEUEHEAD)所在的seg(IKCPSEG)地址的开始处
@@ -856,7 +856,7 @@ int ikcp_input(ikcpcb *kcp, const char *data, long size)
 		ikcp_parse_fastack(kcp, maxack);
 	}
 
-	if (_itimediff(kcp->snd_una, una) > 0) {
+	if (_itimediff(kcp->snd_una, una) > 0) { // 如果有数据发送完毕(snd_una > old_snd_una)
 		if (kcp->cwnd < kcp->rmt_wnd) {
 			IUINT32 mss = kcp->mss;
 			if (kcp->cwnd < kcp->ssthresh) {
@@ -941,7 +941,7 @@ void ikcp_flush(ikcpcb *kcp)
 			ikcp_output(kcp, buffer, size);
 			ptr = buffer;
 		}
-		ikcp_ack_get(kcp, i, &seg.sn, &seg.ts);
+		ikcp_ack_get(kcp, i, &seg.sn, &seg.ts); // 获取一个ack的 sn ts
 		ptr = ikcp_encode_seg(ptr, &seg);
 	}
 
